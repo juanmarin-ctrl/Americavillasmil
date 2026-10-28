@@ -3,13 +3,14 @@ Contributors: teducas
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.6.8
+Stable tag: 2.7.0
 
 Importa fotos + plantillas Elementor de AV Studio Academy.
+Tras instalar, despliega un runtime en mu-plugins para poder borrar este plugin sin perder estilos.
 
 == Uso ==
 1. Sube este plugin (ZIP) en WordPress → Plugins → Añadir → Subir.
 2. Activa Elementor.
-3. Activa AV Studio Importer.
-4. Herramientas → AV Studio Importar → botón Importar.
-5. Inserta las plantillas en tus páginas / Theme Builder.
+3. Activa AV Studio Maestro.
+4. AV Studio → REPARAR / INSTALAR SITIO COMPLETO.
+5. Cuando diga «Runtime instalado», puedes Desactivar → Eliminar este plugin.

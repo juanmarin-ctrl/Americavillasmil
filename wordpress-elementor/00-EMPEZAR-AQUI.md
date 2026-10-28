@@ -26,7 +26,7 @@ Instala el plugin maestro y pulsa un botón.
 → **`UN-SOLO-CLICK.md`**  
 → ZIP: **`av-studio-importer.zip`** (plugin **AV Studio Maestro**)
 
-Hace: fotos + páginas Elementor + menús + inicio/blog + legales + CSS + header/footer.
+Hace: fotos + páginas Elementor + menús + inicio/blog + legales + CSS + header/footer + **runtime** (para poder borrar el plugin después sin perder estilos).
 
 ---
 

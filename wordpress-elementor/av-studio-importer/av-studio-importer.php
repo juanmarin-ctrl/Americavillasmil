@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: AV Studio Maestro
- * Description: Instala el sitio completo de AV Studio Academy con un solo clic (fotos, páginas Elementor, menús, inicio, CSS). Incluye log de instalación.
- * Version: 2.6.8
+ * Description: Instala el sitio completo de AV Studio Academy con un solo clic (fotos, páginas Elementor, menús, inicio, CSS). Tras instalar, despliega un runtime en mu-plugins para que puedas borrar este plugin sin perder estilos.
+ * Version: 2.7.0
  * Author: TEDUCAS / AV Studio Academy
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -13,181 +13,16 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-define('AVSI_VERSION', '2.6.8');
+define('AVSI_VERSION', '2.7.0');
 define('AVSI_PATH', plugin_dir_path(__FILE__));
 define('AVSI_URL', plugin_dir_url(__FILE__));
 
 require_once AVSI_PATH . 'includes/class-avsi-importer.php';
 
-/**
- * Body classes (server-side, sin esperar al JS) para que el CSS de marca aplique desde el primer paint.
- */
-add_filter('body_class', function ($classes) {
-	$classes[] = 'av-studio-site';
-	if (avsi_pro_chrome_active()) {
-		$classes[] = 'av-pro-chrome';
-	}
-	if (avsi_is_custom_blog_view()) {
-		$classes[] = 'av-blog-native';
-	}
-	return $classes;
-});
-
-/**
- * ¿Nuestro header/footer de Elementor Pro (Theme Builder) está activo?
- */
-function avsi_pro_chrome_active() {
-	if (!class_exists('\\ElementorPro\\Plugin')) {
-		return false;
-	}
-	$ids = get_option('avsi_pro_chrome_ids');
-	if (empty($ids['header']) || empty($ids['footer'])) {
-		return false;
-	}
-	return get_post_status((int) $ids['header']) === 'publish' && get_post_status((int) $ids['footer']) === 'publish';
+// Frontend: solo si el MU-plugin runtime aún no lo cargó (evita hooks duplicados).
+if (!defined('AVSI_FRONTEND_LOADED')) {
+	require_once AVSI_PATH . 'includes/avsi-frontend.php';
 }
-
-/**
- * Vista blog / single post con plantilla AV.
- */
-function avsi_is_custom_blog_view() {
-	return (is_home() && !is_front_page()) || is_singular('post');
-}
-
-/**
- * ID de plantilla Elementor Library por título.
- */
-function avsi_library_id_by_title($title) {
-	$all = get_posts(array(
-		'post_type' => 'elementor_library',
-		'post_status' => 'publish',
-		'numberposts' => 80,
-	));
-	foreach ($all as $p) {
-		if ($p->post_title === $title) {
-			return (int) $p->ID;
-		}
-	}
-	return 0;
-}
-
-/**
- * Imagen hero del blog (medios importados o fallback del plugin).
- */
-function avsi_blog_hero_image_url() {
-	$fallback = AVSI_URL . 'assets/images/stock/blog-porosidad.jpg';
-	$q = new WP_Query(array(
-		'post_type' => 'attachment',
-		'post_status' => 'inherit',
-		'posts_per_page' => 1,
-		'meta_query' => array(
-			array(
-				'key' => '_wp_attached_file',
-				'value' => 'blog-porosidad',
-				'compare' => 'LIKE',
-			),
-		),
-	));
-	if (!empty($q->posts[0])) {
-		$url = wp_get_attachment_image_url((int) $q->posts[0]->ID, 'full');
-		if ($url) {
-			return $url;
-		}
-	}
-	return $fallback;
-}
-
-/**
- * En Free: pinta header/footer Elementor en vistas de blog (Pro ya lo hace vía Theme Builder).
- */
-function avsi_print_free_chrome($which) {
-	if (avsi_pro_chrome_active() || !class_exists('\\Elementor\\Plugin')) {
-		return;
-	}
-	$title = $which === 'footer' ? 'AV Footer' : 'AV Header';
-	$id = avsi_library_id_by_title($title);
-	if (!$id) {
-		return;
-	}
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo \Elementor\Plugin::instance()->frontend->get_builder_content_for_display($id);
-}
-
-/**
- * Hello Elementor: no pintar su chrome si Pro o si nosotros lo sustituimos en el blog.
- */
-add_filter('hello_elementor_header_footer', function ($show) {
-	if (avsi_pro_chrome_active()) {
-		return false;
-	}
-	if (avsi_is_custom_blog_view() && (avsi_library_id_by_title('AV Header') || avsi_library_id_by_title('AV Footer'))) {
-		return false;
-	}
-	return $show;
-});
-
-/**
- * Sustituye el listado WP por la plantilla AV del mockup.
- */
-add_filter('template_include', function ($template) {
-	if (is_home() && !is_front_page()) {
-		$custom = AVSI_PATH . 'templates/av-blog-archive.php';
-		if (is_readable($custom)) {
-			return $custom;
-		}
-	}
-	if (is_singular('post')) {
-		$custom = AVSI_PATH . 'templates/av-single-post.php';
-		if (is_readable($custom)) {
-			return $custom;
-		}
-	}
-	return $template;
-}, 99);
-
-add_action('wp_enqueue_scripts', function () {
-	wp_enqueue_style(
-		'avsi-fonts',
-		'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap',
-		array(),
-		null
-	);
-	wp_enqueue_style(
-		'avsi-elementor-custom',
-		AVSI_URL . 'assets/elementor-custom.css',
-		array(),
-		AVSI_VERSION
-	);
-	wp_enqueue_style(
-		'avsi-frontend',
-		AVSI_URL . 'assets/av-frontend.css',
-		array('avsi-elementor-custom'),
-		AVSI_VERSION
-	);
-	wp_enqueue_script(
-		'avsi-frontend',
-		AVSI_URL . 'assets/av-frontend.js',
-		array(),
-		AVSI_VERSION,
-		true
-	);
-
-	$monogram = AVSI_URL . 'assets/images/brand/monograma-av-oro.png';
-	$logo_id = (int) get_theme_mod('custom_logo');
-	if ($logo_id) {
-		$url = wp_get_attachment_image_url($logo_id, 'full');
-		if ($url) {
-			$monogram = $url;
-		}
-	}
-	wp_localize_script(
-		'avsi-frontend',
-		'avsiFrontend',
-		array(
-			'monogramUrl' => esc_url_raw($monogram),
-		)
-	);
-}, 30);
 
 add_action('admin_menu', function () {
 	add_menu_page(
@@ -219,6 +54,48 @@ add_action('admin_post_avsi_run_import', function () {
 	exit;
 });
 
+add_action('admin_post_avsi_deploy_runtime', function () {
+	if (!current_user_can('manage_options')) {
+		wp_die('Forbidden');
+	}
+	check_admin_referer('avsi_deploy_runtime');
+
+	$importer = new AVSI_Importer();
+	$ok = $importer->deploy_runtime();
+	$log = $importer->get_log_lines();
+	$result = array(
+		'runtime_only' => true,
+		'runtime' => $ok,
+		'images' => 0,
+		'templates' => 0,
+		'pages' => 0,
+		'posts' => 0,
+		'log' => $log,
+	);
+	set_transient('avsi_last_result', $result, 2 * HOUR_IN_SECONDS);
+	update_option('avsi_last_result', $result, false);
+	update_option('avsi_last_log', $log, false);
+	$upload = wp_upload_dir();
+	if (empty($upload['error'])) {
+		file_put_contents(
+			trailingslashit($upload['basedir']) . 'avsi-import-log.txt',
+			implode("\n", $log) . "\n"
+		);
+	}
+	wp_safe_redirect(admin_url('admin.php?page=av-studio-importer&runtime=1'));
+	exit;
+});
+
+/**
+ * ¿Está el runtime MU-plugin instalado y legible?
+ */
+function avsi_runtime_is_deployed() {
+	$loader = WP_CONTENT_DIR . '/mu-plugins/av-studio-runtime.php';
+	$frontend = WP_CONTENT_DIR . '/mu-plugins/av-studio-runtime/includes/avsi-frontend.php';
+	$css = WP_CONTENT_DIR . '/mu-plugins/av-studio-runtime/assets/av-frontend.css';
+	return is_readable($loader) && is_readable($frontend) && is_readable($css);
+}
+
 function avsi_render_admin_page() {
 	if (!current_user_can('manage_options')) {
 		return;
@@ -240,6 +117,7 @@ function avsi_render_admin_page() {
 
 	$elementor_ok = did_action('elementor/loaded') || class_exists('\\Elementor\\Plugin');
 	$pro_ok = class_exists('\\ElementorPro\\Plugin');
+	$runtime_ok = avsi_runtime_is_deployed() || defined('AVSI_RUNTIME_ACTIVE');
 	$upload = wp_upload_dir();
 	$log_file = !empty($upload['basedir']) ? trailingslashit($upload['basedir']) . 'avsi-import-log.txt' : '';
 	?>
@@ -255,6 +133,28 @@ function avsi_render_admin_page() {
 			<div class="notice notice-info"><p>Elementor Free: header/footer se embebe en cada página.</p></div>
 		<?php endif; ?>
 
+		<?php if ($runtime_ok) : ?>
+			<div class="notice notice-success" style="padding:12px 16px;">
+				<p style="margin:0;font-size:15px;"><strong>Runtime instalado.</strong> Los estilos, tipografías, JS y plantillas del blog viven en <code>wp-content/mu-plugins/av-studio-runtime/</code>. Ya puedes <strong>desactivar y eliminar</strong> este plugin (AV Studio Maestro) sin dañar el diseño. No borres la carpeta <code>mu-plugins</code> ni el archivo <code>av-studio-runtime.php</code>.</p>
+			</div>
+		<?php else : ?>
+			<div class="notice notice-warning" style="padding:12px 16px;">
+				<p style="margin:0;font-size:15px;"><strong>Aún no hay runtime.</strong> Si desinstalas este plugin ahora, se romperán los estilos. Pulsa <em>REPARAR / INSTALAR</em> o el botón de solo runtime abajo.</p>
+			</div>
+		<?php endif; ?>
+
+		<?php if (isset($_GET['runtime']) && is_array($result)) : ?>
+			<div class="notice notice-<?php echo !empty($result['runtime']) ? 'success' : 'error'; ?>" style="padding:12px 16px;">
+				<p style="margin:0;font-size:15px;">
+					<?php if (!empty($result['runtime'])) : ?>
+						<strong>Runtime desplegado.</strong> Revisa el log. Ya puedes eliminar AV Studio Maestro.
+					<?php else : ?>
+						<strong>No se pudo desplegar el runtime.</strong> Revisa permisos de escritura en <code>wp-content/mu-plugins/</code>.
+					<?php endif; ?>
+				</p>
+			</div>
+		<?php endif; ?>
+
 		<?php if (isset($_GET['done']) && is_array($result)) : ?>
 			<div class="notice notice-success" style="padding:12px 16px;">
 				<p style="font-size:16px;margin:0 0 8px;"><strong>Proceso terminado.</strong> Revisa el log abajo: si alguna página dice <code>FALLBACK-generic</code> o <code>verify_els=0</code>, cópialo y mándalo.</p>
@@ -263,6 +163,7 @@ function avsi_render_admin_page() {
 					<li>Plantillas: <?php echo esc_html((string) ($result['templates'] ?? 0)); ?></li>
 					<li>Páginas: <?php echo esc_html((string) ($result['pages'] ?? 0)); ?></li>
 					<li>Posts: <?php echo esc_html((string) ($result['posts'] ?? 0)); ?></li>
+					<li>Runtime (para poder borrar el plugin): <?php echo !empty($result['runtime']) ? 'OK' : 'FALLO'; ?></li>
 				</ul>
 				<p style="margin-top:12px;">
 					<a class="button button-primary" href="<?php echo esc_url(home_url('/')); ?>" target="_blank">Ver sitio</a>
@@ -274,7 +175,7 @@ function avsi_render_admin_page() {
 
 		<div class="card" style="max-width:760px;padding:1.5rem;border:1px solid #c4a35a;box-shadow:0 10px 30px rgba(0,0,0,.06);">
 			<h2 style="margin-top:0;">Instalar / reparar</h2>
-			<p>Sube el ZIP <strong>2.6.8</strong>, actívalo y pulsa el botón. El log dirá exactamente qué se guardó en cada página (plantillas completas, header/footer Pro activados, tarjetas en 3 columnas). El blog usa la plantilla AV (hero + tarjetas) al activar el plugin.</p>
+			<p>Sube el ZIP <strong>2.7.0</strong>, actívalo y pulsa el botón. Además de páginas y fotos, copia estilos a un <strong>MU-plugin</strong> para que luego puedas borrar este instalador.</p>
 			<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" onsubmit="this.querySelector('input[type=submit]').disabled=true;this.querySelector('input[type=submit]').value='Instalando… espera';">
 				<input type="hidden" name="action" value="avsi_run_import">
 				<?php wp_nonce_field('avsi_run_import'); ?>
@@ -288,6 +189,24 @@ function avsi_render_admin_page() {
 				);
 				?>
 			</form>
+		</div>
+
+		<div class="card" style="max-width:760px;margin-top:20px;padding:1.5rem;">
+			<h2 style="margin-top:0;">Solo runtime (preparar desinstalación)</h2>
+			<p>Si el sitio ya está instalado y solo quieres poder <strong>borrar este plugin</strong> sin romper CSS/JS/blog, usa este botón. No vuelve a crear páginas.</p>
+			<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+				<input type="hidden" name="action" value="avsi_deploy_runtime">
+				<?php wp_nonce_field('avsi_deploy_runtime'); ?>
+				<?php
+				submit_button(
+					'INSTALAR RUNTIME Y PODER BORRAR ESTE PLUGIN',
+					'secondary large',
+					'submit',
+					false
+				);
+				?>
+			</form>
+			<p style="color:#666;font-size:13px;margin-bottom:0;">Después: Plugins → AV Studio Maestro → Desactivar → Eliminar. El diseño queda en el runtime (mu-plugins).</p>
 		</div>
 
 		<?php if (!empty($log)) : ?>

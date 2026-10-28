@@ -9,7 +9,8 @@
 5. Pone **Inicio** como portada y **Blog** como entradas  
 6. Publica **3 posts** de ejemplo  
 7. Aplica el **CSS** de marca  
-8. Configura **Header/Footer** (Theme Builder si hay Elementor Pro; si no, los embebe en las páginas)
+8. Configura **Header/Footer** (Theme Builder si hay Elementor Pro; si no, los embebe en las páginas)  
+9. Instala el **runtime** en `wp-content/mu-plugins/` (estilos + JS + blog) para que puedas **borrar este plugin** sin romper el diseño
 
 ---
 
@@ -17,7 +18,7 @@
 
 1. Instala y activa **Elementor** (Pro recomendado)  
 2. Tema recomendado: **Hello Elementor**  
-3. **Plugins → Subir** → `av-studio-importer.zip` (**versión 2.6.8**)  
+3. **Plugins → Subir** → `av-studio-importer.zip` (**versión 2.7.0**)  
 4. Activa **AV Studio Maestro**  
 5. Menú lateral: **AV Studio**  
 6. Pulsa **REPARAR / INSTALAR SITIO COMPLETO**  
@@ -26,17 +27,17 @@
 
 ### Si ya tenías una versión anterior
 
-**Sube el ZIP 2.6.8** (reemplaza el plugin). El blog personalizado aplica al activar (sin reimportar).  
-Para categorías en posts de ejemplo, sí pulsa **REPARAR** otra vez.
+**Sube el ZIP 2.7.0** (reemplaza el plugin). Luego:
 
-1. Plugins → **AV Studio Maestro → Desactivar → Eliminar** (no borra páginas/medios)  
-2. Plugins → Subir → `av-studio-importer.zip` **2.6.8** → Activar  
-3. Ctrl+F5 en el sitio (y opcional: AV Studio → REPARAR)
+1. AV Studio → **REPARAR** (o solo **INSTALAR RUNTIME…**)  
+2. Cuando veas el aviso verde «Runtime instalado», puedes **Desactivar → Eliminar** AV Studio Maestro  
+3. Ctrl+F5 en el sitio
 
-Qué cambia la **2.6.8**:
+Qué cambia la **2.7.0**:
 
-- **Blog:** plantilla AV (hero + grid de tarjetas) en lugar del listado nativo de WordPress  
-- Entradas individuales con el mismo look; categorías en posts de ejemplo al reparar
+- Tras instalar, copia CSS/JS/plantillas blog a un **MU-plugin** (`av-studio-runtime`)  
+- Puedes **desinstalar el Maestro** y el diseño sigue funcionando  
+- No borres `wp-content/mu-plugins/av-studio-runtime.php` ni la carpeta `av-studio-runtime/`
 
 El log también queda en `wp-content/uploads/avsi-import-log.txt`.  
 Si una página dice `FALLBACK-generic` o `verify_els=0`, copia el log y envíalo.  
@@ -46,7 +47,16 @@ Listo. Para editar: Páginas → Editar con Elementor.
 
 ---
 
-## Archivo (elige uno) — versión 2.6.8
+## Borrar el plugin sin romper estilos
+
+1. Asegúrate de ver **Runtime instalado** en AV Studio (o pulsa «INSTALAR RUNTIME…»)  
+2. Plugins → **AV Studio Maestro → Desactivar → Eliminar**  
+3. Las páginas, medios y el diseño **se quedan**  
+4. Lo que NO debes borrar: `mu-plugins/av-studio-runtime.php` y `mu-plugins/av-studio-runtime/`
+
+---
+
+## Archivo (elige uno) — versión 2.7.0
 
 - Fácil: `C:\Users\jagmr\Downloads\av-studio-importer.zip`
 - Proyecto: `wordpress-elementor/av-studio-importer.zip`

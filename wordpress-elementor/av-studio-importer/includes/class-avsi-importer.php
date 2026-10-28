@@ -32,10 +32,14 @@ class AVSI_Importer {
 		$this->configure_site_identity();
 		$this->assign_header_footer();
 		$this->maybe_save_custom_css();
+		$runtime_ok = $this->deploy_runtime();
 		$this->flush_elementor_css();
 		flush_rewrite_rules(false);
 
 		$this->log('=== FIN OK ===');
+		if ($runtime_ok) {
+			$this->log('Runtime MU-plugin listo: puedes DESACTIVAR y ELIMINAR AV Studio Maestro sin perder estilos.');
+		}
 		$this->persist_log();
 
 		return array(
@@ -44,13 +48,103 @@ class AVSI_Importer {
 			'pages' => $pages,
 			'posts' => $posts,
 			'menu' => $menu_ok,
+			'runtime' => $runtime_ok,
 			'messages' => $this->messages,
 			'log' => $this->log_lines,
 		);
 	}
 
+	/**
+	 * Copia CSS/JS/plantillas blog a wp-content/mu-plugins para que sobrevivan al borrar el instalador.
+	 */
+	public function deploy_runtime() {
+		$mu_dir = WP_CONTENT_DIR . '/mu-plugins';
+		$dest = $mu_dir . '/av-studio-runtime';
+		$loader_dest = $mu_dir . '/av-studio-runtime.php';
+
+		if (!wp_mkdir_p($mu_dir)) {
+			$this->log('RUNTIME ERROR: no se pudo crear ' . $mu_dir);
+			return false;
+		}
+		if (!wp_mkdir_p($dest)) {
+			$this->log('RUNTIME ERROR: no se pudo crear ' . $dest);
+			return false;
+		}
+
+		$copies = array(
+			array(AVSI_PATH . 'includes/avsi-frontend.php', $dest . '/includes/avsi-frontend.php'),
+			array(AVSI_PATH . 'assets/av-frontend.css', $dest . '/assets/av-frontend.css'),
+			array(AVSI_PATH . 'assets/av-frontend.js', $dest . '/assets/av-frontend.js'),
+			array(AVSI_PATH . 'assets/elementor-custom.css', $dest . '/assets/elementor-custom.css'),
+			array(AVSI_PATH . 'templates/av-blog-archive.php', $dest . '/templates/av-blog-archive.php'),
+			array(AVSI_PATH . 'templates/av-single-post.php', $dest . '/templates/av-single-post.php'),
+		);
+
+		// Monograma fallback (opcional; el logo suele estar en Medios).
+		$brand = AVSI_PATH . 'assets/images/brand/monograma-av-oro.png';
+		if (is_readable($brand)) {
+			$copies[] = array($brand, $dest . '/assets/images/brand/monograma-av-oro.png');
+		}
+		$hero = AVSI_PATH . 'assets/images/stock/blog-porosidad.jpg';
+		if (is_readable($hero)) {
+			$copies[] = array($hero, $dest . '/assets/images/stock/blog-porosidad.jpg');
+		}
+
+		$ok = 0;
+		foreach ($copies as $pair) {
+			list($from, $to) = $pair;
+			if (!is_readable($from)) {
+				$this->log('RUNTIME WARN: falta ' . $from);
+				continue;
+			}
+			$dir = dirname($to);
+			if (!wp_mkdir_p($dir)) {
+				$this->log('RUNTIME ERROR: mkdir ' . $dir);
+				continue;
+			}
+			if (!@copy($from, $to)) {
+				$this->log('RUNTIME ERROR: copy → ' . $to);
+				continue;
+			}
+			$ok++;
+		}
+
+		$loader_src = AVSI_PATH . 'runtime/mu-loader.php';
+		if (!is_readable($loader_src)) {
+			$this->log('RUNTIME ERROR: falta runtime/mu-loader.php');
+			return false;
+		}
+		$loader = file_get_contents($loader_src);
+		// Mantener la versión del Maestro en el runtime desplegado.
+		$loader = preg_replace("/Version: [0-9.]+/", 'Version: ' . AVSI_VERSION, $loader, 1);
+		$loader = preg_replace(
+			"/define\\('AVSI_RUNTIME_VERSION', '[^']+'\\);/",
+			"define('AVSI_RUNTIME_VERSION', '" . AVSI_VERSION . "');",
+			$loader,
+			1
+		);
+		if (false === file_put_contents($loader_dest, $loader)) {
+			$this->log('RUNTIME ERROR: no se pudo escribir ' . $loader_dest);
+			return false;
+		}
+
+		update_option('avsi_runtime_deployed', array(
+			'version' => AVSI_VERSION,
+			'path' => $dest,
+			'time' => time(),
+		), false);
+
+		$this->log('RUNTIME OK: ' . $ok . ' archivos → ' . $dest);
+		$this->log('RUNTIME loader: ' . $loader_dest);
+		return $ok > 0 && is_readable($loader_dest) && is_readable($dest . '/includes/avsi-frontend.php');
+	}
+
 	public function run() {
 		return $this->run_full_site();
+	}
+
+	public function get_log_lines() {
+		return $this->log_lines;
 	}
 
 	private function log($msg) {
