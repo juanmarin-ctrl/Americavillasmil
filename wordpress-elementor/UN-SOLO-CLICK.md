@@ -18,7 +18,7 @@
 
 1. Instala y activa **Elementor** (Pro recomendado)  
 2. Tema recomendado: **Hello Elementor**  
-3. **Plugins → Subir** → `av-studio-importer.zip` (**versión 2.7.0**)  
+3. **Plugins → Subir** → `av-studio-importer.zip` (**versión 2.7.2**)  
 4. Activa **AV Studio Maestro**  
 5. Menú lateral: **AV Studio**  
 6. Pulsa **REPARAR / INSTALAR SITIO COMPLETO**  
@@ -27,17 +27,17 @@
 
 ### Si ya tenías una versión anterior
 
-**Sube el ZIP 2.7.0** (reemplaza el plugin). Luego:
+**Sube el ZIP 2.7.2** (reemplaza el plugin). Luego:
 
-1. AV Studio → **REPARAR** (o solo **INSTALAR RUNTIME…**)  
+1. AV Studio → **REPARAR** (actualiza fotos + datos de empresa)  
 2. Cuando veas el aviso verde «Runtime instalado», puedes **Desactivar → Eliminar** AV Studio Maestro  
 3. Ctrl+F5 en el sitio
 
-Qué cambia la **2.7.0**:
+Qué cambia la **2.7.2**:
 
-- Tras instalar, copia CSS/JS/plantillas blog a un **MU-plugin** (`av-studio-runtime`)  
-- Puedes **desinstalar el Maestro** y el diseño sigue funcionando  
-- No borres `wp-content/mu-plugins/av-studio-runtime.php` ni la carpeta `av-studio-runtime/`
+- Datos de empresa corregidos (contacto, dirección GA, historia, misión/visión, slogan)  
+- Banco de fotos reales + refresh al reparar (2.7.1)  
+- Runtime MU-plugin: puedes borrar el Maestro sin perder estilos (2.7.0)
 
 El log también queda en `wp-content/uploads/avsi-import-log.txt`.  
 Si una página dice `FALLBACK-generic` o `verify_els=0`, copia el log y envíalo.  
@@ -56,7 +56,7 @@ Listo. Para editar: Páginas → Editar con Elementor.
 
 ---
 
-## Archivo (elige uno) — versión 2.7.0
+## Archivo (elige uno) — versión 2.7.2
 
 - Fácil: `C:\Users\jagmr\Downloads\av-studio-importer.zip`
 - Proyecto: `wordpress-elementor/av-studio-importer.zip`

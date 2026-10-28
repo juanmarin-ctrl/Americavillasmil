@@ -8,18 +8,18 @@
 ## Formulario (campos Elementor Form)
 - Nombre (obligatorio)
 - Email (obligatorio)
-- Teléfono / WhatsApp
+- Teléfono / WhatsApp (placeholder +1)
 - Interés (select): Tricología Cosmética | Ciencia del Color Capilar | Corrección de Color | Servicios de salón | Otro
 - Mensaje (obligatorio)
 - Botón: Enviar mensaje
-- Destinatario: contacto@abstudioacademy.com
+- Destinatario: cervolallc@gmail.com
 
 ## Aside datos
 **H3:** Datos de la academia  
 AV Studio Academy · América Villasmil  
 
-- Email: contacto@abstudioacademy.com  
-- Vocera: América María Villasmil — america.villasmil@hotmail.com  
+- Email: cervolallc@gmail.com  
+- Teléfono: +1 (678) 537-1003  
+- Instagram: @studioamevillasmil  
 - Web: abstudioacademy.com  
-- Ubicación: Calbuco, Región de Los Lagos, Chile  
-- Referencia salón: V-839, Calbuco  
+- Dirección: 2286 Waycross Ln, Dacula, GA 30019, EE. UU.  

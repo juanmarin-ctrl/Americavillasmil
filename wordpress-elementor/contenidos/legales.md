@@ -6,19 +6,19 @@
 ---
 
 ## Aviso legal
-Ver texto completo del mockup `aviso-legal.html` o copiar desde el sitio de referencia.  
-Datos: AV Studio Academy / América María Villasmil · abstudioacademy.com · contacto@abstudioacademy.com · Calbuco, Chile.
+Datos: AV Studio Academy / América Villasmil · abstudioacademy.com · cervolallc@gmail.com · +1 (678) 537-1003 · 2286 Waycross Ln, Dacula, GA 30019, EE. UU.  
+Legislación de referencia: Estado de Georgia / Estados Unidos.
 
 ## Política de privacidad y tratamiento de datos personales
 Responsable, finalidades, conservación, derechos del titular, destinatarios (Hostinger, SMTP, pasarela), seguridad.  
-Contacto derechos: contacto@abstudioacademy.com
+Contacto derechos: cervolallc@gmail.com
 
 ## Política de cookies
 Esenciales, preferencias, analíticas, marketing. Consentimiento vía plugin (Complianz u otro).
 
 ## Política de reembolsos
 Productos digitales: ventana sugerida 7 días si no se consumió >20% del curso.  
-Proceso: email a contacto@abstudioacademy.com.  
+Proceso: email a cervolallc@gmail.com.  
 Servicios de salón: según política de agenda/abonos.
 
 ## Términos y condiciones

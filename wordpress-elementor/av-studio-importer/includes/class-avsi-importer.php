@@ -200,9 +200,15 @@ class AVSI_Importer {
 				$filename = basename($file);
 				$existing = $this->find_attachment_by_filename($filename);
 				if ($existing) {
+					$refreshed = $this->refresh_attachment_file($existing, $file);
 					$this->media_map[$filename] = $existing;
 					$this->url_map[$filename] = wp_get_attachment_url($existing);
-					$this->log('IMG reuse #' . $existing . ' ' . $filename);
+					if ($refreshed) {
+						$this->log('IMG refresh #' . $existing . ' ' . $filename);
+						$count++;
+					} else {
+						$this->log('IMG reuse #' . $existing . ' ' . $filename);
+					}
 					continue;
 				}
 				$attachment_id = $this->sideload_local_file($file, $filename);
@@ -236,6 +242,41 @@ class AVSI_Importer {
 			'no_found_rows' => true,
 		));
 		return !empty($query->posts[0]) ? (int) $query->posts[0] : 0;
+	}
+
+	/**
+	 * Sobrescribe el archivo de un attachment existente (mismas rutas/tamaños regenerados).
+	 * Sirve para actualizar el banco de fotos al pulsar REPARAR.
+	 */
+	private function refresh_attachment_file($attachment_id, $absolute_path) {
+		$path = get_attached_file($attachment_id);
+		if (!$path || !is_readable($absolute_path)) {
+			return false;
+		}
+		$dir = dirname($path);
+		if (!is_dir($dir) || !is_writable($dir)) {
+			return false;
+		}
+		$old_meta = wp_get_attachment_metadata($attachment_id);
+		if (!empty($old_meta['sizes']) && is_array($old_meta['sizes'])) {
+			foreach ($old_meta['sizes'] as $size) {
+				if (empty($size['file'])) {
+					continue;
+				}
+				$sized = trailingslashit($dir) . $size['file'];
+				if (is_file($sized)) {
+					@unlink($sized);
+				}
+			}
+		}
+		if (!@copy($absolute_path, $path)) {
+			return false;
+		}
+		$meta = wp_generate_attachment_metadata($attachment_id, $path);
+		if (!empty($meta) && !is_wp_error($meta)) {
+			wp_update_attachment_metadata($attachment_id, $meta);
+		}
+		return true;
 	}
 
 	private function sideload_local_file($absolute_path, $filename) {
@@ -851,7 +892,7 @@ class AVSI_Importer {
 			} elseif (!empty($el['widgetType']) && $el['widgetType'] === 'form') {
 				$el['widgetType'] = 'text-editor';
 				$el['settings'] = array(
-					'editor' => '<p>Escríbenos a <a href="mailto:contacto@abstudioacademy.com"><strong>contacto@abstudioacademy.com</strong></a> indicando tu nombre, el curso de interés y tu mensaje. Te respondemos en menos de 48 horas.</p><p><em>Con Elementor Pro este bloque se convierte en un formulario conectado por email.</em></p>',
+					'editor' => '<p>Escríbenos a <a href="mailto:cervolallc@gmail.com"><strong>cervolallc@gmail.com</strong></a> o al <a href="tel:+16785371003"><strong>+1 (678) 537-1003</strong></a> indicando tu nombre, el curso de interés y tu mensaje. Te respondemos en menos de 48 horas.</p><p>Instagram: <a href="https://instagram.com/studioamevillasmil" target="_blank" rel="noopener">@studioamevillasmil</a></p><p><em>Con Elementor Pro este bloque se convierte en un formulario conectado por email.</em></p>',
 					'text_color' => '#7a736a',
 					'typography_typography' => 'custom',
 					'typography_font_family' => 'Manrope',
@@ -1083,17 +1124,19 @@ class AVSI_Importer {
 	}
 
 	private function page_copy($kind, $title) {
-		$mail = '<a href="mailto:contacto@abstudioacademy.com">contacto@abstudioacademy.com</a>';
+		$mail = '<a href="mailto:cervolallc@gmail.com">cervolallc@gmail.com</a>';
+		$phone = '<a href="tel:+16785371003">+1 (678) 537-1003</a>';
+		$address = '2286 Waycross Ln, Dacula, GA 30019, Estados Unidos';
 		$updated = 'Última actualización: octubre 2026.';
 		$copies = array(
 			'about' => array(
 				'img' => 'sobre-nosotros-hero.jpg',
 				'eyebrow' => 'Sobre nosotros',
 				'h1' => 'América Villasmil y una academia con identidad propia',
-				'intro' => 'Experiencia real de salón, convertida en formación clara.',
+				'intro' => 'Conocimiento que transforma la práctica. De estilistas a tricólogos cosméticos.',
 				'sections' => array(
-					array('La fundadora', '<p>América María Villasmil es propietaria de AV Studio en Calbuco, Chile. Desde 2018 desarrolla capacitación y perfeccionamiento en belleza y peluquería, con foco en color, fibra y resultados sostenibles.</p><p>AV Studio Academy nace para organizar ese conocimiento en una plataforma digital escalable: cursos online, contenidos editables y una marca centralizada para comercializar formación profesional.</p>'),
-					array('Propósito', '<p><strong>Misión:</strong> brindar formación accesible y estructurada en tricología cosmética, color y química capilar.</p><p><strong>Visión:</strong> ser una academia digital de referencia donde la ciencia capilar eleve la calidad y seguridad de los servicios de belleza.</p><p><strong>Valores:</strong> criterio científico, cuidado de la fibra, ética profesional y claridad pedagógica.</p>'),
+					array('La fundadora', '<p>AV Studio nace de una historia familiar ligada a la peluquería durante más de 30 años. América Villasmil creció en un salón de belleza y construyó su trayectoria con más de 20 años de experiencia, formándose junto a marcas y academias como L’Oréal, Wella, Davines y Pivot Point.</p><p>De esa evolución nace <strong>AV Studio Academy</strong>: una academia online para quienes empiezan desde cero y para estilistas que buscan actualizarse con tricología cosmética, química capilar, color y diagnóstico profesional. Más de 200 personas ya se han capacitado con este enfoque.</p>'),
+					array('Propósito', '<p><strong>Misión:</strong> brindar formación online profesional, accesible y estructurada —integrando experiencia de salón, tricología cosmética, química capilar, color y diagnóstico— para que cada estudiante comprenda qué hacer, por qué, cuándo y hasta dónde llegar.</p><p><strong>Visión:</strong> convertir a AV Studio Academy en una academia de referencia internacional que eleva el nivel profesional de la belleza con conocimiento, personalización y educación continua.</p><p><strong>Valores:</strong> amor, profesionalidad, ética, compromiso, conocimiento, seguridad, individualidad, evolución, empoderamiento y excelencia.</p>'),
 				),
 				'note' => '',
 			),
@@ -1101,7 +1144,7 @@ class AVSI_Importer {
 				'img' => 'salon-interior.jpg',
 				'eyebrow' => 'Servicios',
 				'h1' => 'Academia digital y excelencia de salón',
-				'intro' => 'Formación online con criterio científico y servicios profesionales en AV Studio.',
+				'intro' => 'Formación online con criterio científico y la mirada real de salón de AV Studio.',
 				'sections' => array(
 					array('Academia', '<ul><li>Cursos online en video con módulos y recursos descargables.</li><li>Rutas de aprendizaje desde fundamentos hasta corrección avanzada.</li><li>Orientación académica según nivel y objetivos.</li></ul>'),
 					array('Salón AV Studio', '<ul><li>Coloración: canas, mechas, babylights y color personalizado.</li><li>Tratamientos: botox orgánico, nutrición, reparación y anticaída.</li><li>Alisados, acabados y belleza integral.</li></ul>'),
@@ -1114,15 +1157,15 @@ class AVSI_Importer {
 				'h1' => 'Aviso legal',
 				'intro' => 'Información sobre la titularidad del sitio y las condiciones generales de uso.',
 				'sections' => array(
-					array('1. Datos identificativos', '<p>El sitio web <strong>abstudioacademy.com</strong> es operado por <strong>AV Studio Academy / América María Villasmil</strong> (en adelante, “la Academia”), con domicilio de referencia en Calbuco, Región de Los Lagos, Chile, y correo de contacto ' . $mail . '.</p>'),
+					array('1. Datos identificativos', '<p>El sitio web <strong>abstudioacademy.com</strong> es operado por <strong>AV Studio Academy / América Villasmil</strong> (en adelante, “la Academia”), con domicilio en ' . $address . ', teléfono ' . $phone . ' y correo de contacto ' . $mail . '.</p>'),
 					array('2. Objeto', '<p>El presente aviso regula el acceso y uso del sitio web, así como de los contenidos formativos, informativos y comerciales publicados en él.</p>'),
 					array('3. Condiciones de uso', '<p>El usuario se compromete a utilizar el sitio de forma lícita, respetuosa y conforme a la buena fe. Queda prohibido el uso del sitio para fines ilícitos, lesivos de derechos de terceros o que puedan dañar la imagen o el funcionamiento de la Academia.</p>'),
 					array('4. Propiedad intelectual', '<p>Los textos, diseños, logotipos, materiales de cursos, imágenes, vídeos y demás contenidos son titularidad de la Academia o de terceros licenciantes. Queda prohibida su reproducción, distribución o comunicación pública sin autorización expresa.</p>'),
 					array('5. Exclusión de responsabilidad', '<p>La Academia procura la exactitud de la información publicada, sin garantizar la ausencia total de errores tipográficos o de actualización. Los contenidos formativos tienen carácter educativo/cosmético y no sustituyen asesoramiento médico.</p>'),
 					array('6. Enlaces', '<p>Los enlaces a sitios de terceros se facilitan para conveniencia del usuario. La Academia no responde del contenido ni de las políticas de dichos sitios.</p>'),
-					array('7. Legislación aplicable', '<p>El presente aviso se rige por la legislación chilena. Para cualquier controversia, las partes se someten a los tribunales competentes conforme a derecho.</p><p>' . $updated . '</p>'),
+					array('7. Legislación aplicable', '<p>El presente aviso se rige por las leyes aplicables del Estado de Georgia y de los Estados Unidos. Para cualquier controversia, las partes se someten a los tribunales competentes conforme a derecho.</p><p>' . $updated . '</p>'),
 				),
-				'note' => 'Documento modelo para revisión legal antes de publicar. Datos a completar con RUT / razón social definitivos.',
+				'note' => 'Documento modelo para revisión legal antes de publicar. Completar con razón social / EIN definitivos si aplica.',
 			),
 			'legal_privacidad' => array(
 				'img' => 'legal-fondo.jpg',
@@ -1130,7 +1173,7 @@ class AVSI_Importer {
 				'h1' => 'Política de privacidad y tratamiento de datos personales',
 				'intro' => 'Cómo recopilamos, usamos y protegemos tus datos personales.',
 				'sections' => array(
-					array('1. Responsable del tratamiento', '<p><strong>AV Studio Academy / América María Villasmil</strong><br>Email: ' . $mail . '<br>Web: abstudioacademy.com</p>'),
+					array('1. Responsable del tratamiento', '<p><strong>AV Studio Academy / América Villasmil</strong><br>Dirección: ' . $address . '<br>Teléfono: ' . $phone . '<br>Email: ' . $mail . '<br>Web: abstudioacademy.com<br>Instagram: <a href="https://instagram.com/studioamevillasmil" target="_blank" rel="noopener">@studioamevillasmil</a></p>'),
 					array('2. Datos que recopilamos', '<ul><li>Datos de identificación y contacto (nombre, email, teléfono).</li><li>Datos de compra / matrícula de cursos (cuando aplique).</li><li>Datos de navegación mediante cookies (ver Política de cookies).</li><li>Mensajes enviados a través de formularios.</li></ul>'),
 					array('3. Finalidades', '<ul><li>Atender solicitudes de información y soporte.</li><li>Gestionar inscripciones, accesos a cursos y facturación.</li><li>Enviar comunicaciones comerciales solo si el usuario lo autoriza.</li><li>Mejorar la experiencia del sitio y medir rendimiento.</li></ul>'),
 					array('4. Base de legitimación', '<p>Consentimiento del titular, ejecución de relación contractual/precontractual e interés legítimo en la mejora del servicio, según corresponda.</p>'),
@@ -1140,7 +1183,7 @@ class AVSI_Importer {
 					array('8. Seguridad', '<p>Se aplican medidas técnicas y organizativas razonables para proteger los datos frente a acceso no autorizado, pérdida o alteración.</p>'),
 					array('9. Menores', '<p>Los servicios formativos están dirigidos a adultos. Si se detectan datos de menores sin autorización, se procederá a eliminarlos.</p><p>' . $updated . '</p>'),
 				),
-				'note' => 'Modelo orientativo alineado a buenas prácticas (Ley N° 19.628 y actualizaciones aplicables en Chile). Debe validarse con asesoría legal.',
+				'note' => 'Modelo orientativo. Validar con asesoría legal según jurisdicción (Georgia / EE. UU. y usuarios internacionales).',
 			),
 			'legal_cookies' => array(
 				'img' => 'legal-fondo.jpg',

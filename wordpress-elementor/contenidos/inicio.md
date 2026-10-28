@@ -2,8 +2,8 @@
 
 ## Hero
 **Eyebrow:** AV Studio Academy  
-**H1:** Belleza con ciencia. Resultados con criterio.  
-**Texto:** Formación online en tricología cosmética, química del color y corrección profesional, liderada por América Villasmil.  
+**H1:** Conocimiento que transforma la práctica.  
+**Texto:** Academia online en belleza, tricología cosmética, química capilar y color. De estilistas a tricólogos cosméticos.  
 **CTA 1:** Explorar cursos → /cursos  
 **CTA 2:** Conocer la academia → /sobre-nosotros  
 
@@ -13,7 +13,7 @@ Tricología cosmética · Ciencia del color · Química capilar · Corrección p
 ## La academia
 **Eyebrow:** La academia  
 **H2:** De la práctica improvisada al protocolo profesional  
-**Lead:** AV Studio Academy organiza la experiencia de América Villasmil en formaciones claras, científicas y aplicables en salón, para quienes quieren dejar de trabajar a prueba y error.  
+**Lead:** AV Studio Academy organiza décadas de experiencia de salón en formaciones claras, científicas y aplicables, para quienes quieren dejar de trabajar a prueba y error.  
 **Pills:** Diagnóstico · Química capilar · Color con criterio · Online  
 **Botón:** Nuestra historia  
 
@@ -21,7 +21,7 @@ Tricología cosmética · Ciencia del color · Química capilar · Corrección p
 - 03 — Programas principales  
 - 16+ — Módulos formativos  
 - 100% — Online y editable  
-- CL — Base en Calbuco, Chile  
+- GA — Dacula, Georgia · EE. UU.  
 
 ## Cursos
 **Eyebrow:** Cursos  
@@ -73,7 +73,6 @@ Meta: 3 módulos
 
 ## Blog preview
 **H2:** Ideas para profesionales del color y la fibra  
-(Usar 3 posts reales o placeholders del mockup)
 
 ## CTA final
 **Badge:** Inscripciones abiertas  
