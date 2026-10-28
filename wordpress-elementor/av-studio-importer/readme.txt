@@ -3,7 +3,7 @@ Contributors: teducas
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.7.8
+Stable tag: 2.7.9
 
 Importa fotos + plantillas Elementor de AV Studio Academy.
 Tras instalar, despliega un runtime en mu-plugins para poder borrar este plugin sin perder estilos.

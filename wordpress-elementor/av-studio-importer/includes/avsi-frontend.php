@@ -14,7 +14,7 @@ if (defined('AVSI_FRONTEND_LOADED')) {
 define('AVSI_FRONTEND_LOADED', true);
 
 if (!defined('AVSI_RUNTIME_VERSION')) {
-	define('AVSI_RUNTIME_VERSION', defined('AVSI_VERSION') ? AVSI_VERSION : '2.7.8');
+	define('AVSI_RUNTIME_VERSION', defined('AVSI_VERSION') ? AVSI_VERSION : '2.7.9');
 }
 
 /**
