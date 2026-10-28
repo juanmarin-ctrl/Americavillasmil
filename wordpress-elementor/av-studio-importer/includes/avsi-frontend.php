@@ -14,7 +14,7 @@ if (defined('AVSI_FRONTEND_LOADED')) {
 define('AVSI_FRONTEND_LOADED', true);
 
 if (!defined('AVSI_RUNTIME_VERSION')) {
-	define('AVSI_RUNTIME_VERSION', defined('AVSI_VERSION') ? AVSI_VERSION : '2.7.2');
+	define('AVSI_RUNTIME_VERSION', defined('AVSI_VERSION') ? AVSI_VERSION : '2.7.8');
 }
 
 /**
@@ -50,6 +50,12 @@ add_filter('body_class', function ($classes) {
 	}
 	if (avsi_is_custom_blog_view()) {
 		$classes[] = 'av-blog-native';
+	}
+	// Tutor LMS: ayuda a aplicar el look AV en curso individual / archivo.
+	if (function_exists('tutor') || post_type_exists('courses')) {
+		if (is_singular('courses') || is_post_type_archive('courses') || is_tax('course-category')) {
+			$classes[] = 'av-tutor-skin';
+		}
 	}
 	return $classes;
 });
@@ -190,10 +196,19 @@ add_action('wp_enqueue_scripts', function () {
 		array(),
 		$ver
 	);
+
+	$front_deps = array('avsi-elementor-custom');
+	foreach (array('tutor-frontend', 'tutor-front', 'tutor') as $tutor_handle) {
+		if (wp_style_is($tutor_handle, 'registered') || wp_style_is($tutor_handle, 'enqueued')) {
+			$front_deps[] = $tutor_handle;
+			break;
+		}
+	}
+
 	wp_enqueue_style(
 		'avsi-frontend',
 		trailingslashit($base_url) . 'assets/av-frontend.css',
-		array('avsi-elementor-custom'),
+		$front_deps,
 		$ver
 	);
 	wp_enqueue_script(
@@ -212,11 +227,13 @@ add_action('wp_enqueue_scripts', function () {
 			$monogram = $url;
 		}
 	}
+	$course_fallback = trailingslashit($base_url) . 'assets/images/stock/curso-tricologia.jpg';
 	wp_localize_script(
 		'avsi-frontend',
 		'avsiFrontend',
 		array(
 			'monogramUrl' => esc_url_raw($monogram),
+			'courseFallbackUrl' => esc_url_raw($course_fallback),
 		)
 	);
-}, 30);
+}, 100);

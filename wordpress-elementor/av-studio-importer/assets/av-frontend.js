@@ -350,4 +350,18 @@
   } else {
     revealList.forEach(showReveal);
   }
+
+  /* Tutor: sustituye placeholder SVG por imagen stock AV */
+  var courseFallback = cfg.courseFallbackUrl;
+  if (courseFallback && document.body.classList.contains("single-courses")) {
+    document
+      .querySelectorAll(
+        '.tutor-course-thumbnail img[src*="placeholder"], .tutor-card-image img[src*="placeholder"]'
+      )
+      .forEach(function (img) {
+        img.src = courseFallback;
+        img.removeAttribute("srcset");
+        img.style.opacity = "1";
+      });
+  }
 })();

@@ -920,7 +920,8 @@ body.av-studio-site .elementor:not([data-elementor-type="header"]):not([data-ele
 .av-bg-world {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  /* Debe ir DETRÁS del contenido; z-index:0 tapa textos de Tutor/main */
+  z-index: -1;
   pointer-events: none;
   overflow: hidden;
 }
@@ -1011,7 +1012,7 @@ body.admin-bar .av-scroll-progress { top: 32px; }
   margin: -210px 0 0 -210px;
   border-radius: 50%;
   pointer-events: none;
-  z-index: 5;
+  z-index: -1;
   background: radial-gradient(circle, rgba(226, 208, 164, 0.14), rgba(196, 163, 90, 0.04) 45%, transparent 70%);
   mix-blend-mode: soft-light;
   opacity: 0.85;
@@ -1023,7 +1024,7 @@ body.admin-bar .av-scroll-progress { top: 32px; }
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 4;
+  z-index: -1;
   overflow: hidden;
 }
 .av-salon-glitter span {
@@ -1474,4 +1475,685 @@ body.admin-bar .av-scroll-progress { top: 32px; }
   .av-scroll-progress,
   .av-hero-atmosphere,
   .av-section-scene { display: none !important; }
+}
+
+/* =========================================================
+   Tutor LMS — skin AV Studio (curso individual + archivo)
+   ========================================================= */
+
+body.single-courses,
+body.post-type-archive-courses,
+body.tax-course-category,
+body.tutor-frontend,
+body.tutor-dashboard {
+  --tutor-color-primary: #c4a35a;
+  --tutor-color-primary-rgb: 196, 163, 90;
+  --tutor-body-color: #2a2622;
+  --tutor-border-color: rgba(18, 16, 14, 0.1);
+  --tutor-bg-color: #fffcf8;
+}
+
+/* Iconos Tutor: no heredar Manrope / Cormorant */
+body.single-courses [class^="tutor-icon-"],
+body.single-courses [class*=" tutor-icon-"],
+body.single-courses [class^="tutor-icon-"]::before,
+body.single-courses [class*=" tutor-icon-"]::before {
+  font-family: "tutor" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  speak: never;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.single-courses .site-main,
+body.single-courses #content,
+body.single-courses .tutor-wrap,
+body.post-type-archive-courses .tutor-wrap {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+body.single-courses .tutor-course-details-page,
+body.single-courses .tutor-course-single-content-wrapper {
+  color: #2a2622;
+  background: transparent;
+  padding-top: 5.5rem !important;
+  padding-bottom: 4rem !important;
+  position: relative;
+  z-index: 2;
+}
+
+body.single-courses .tutor-wrap,
+body.single-courses .site-main,
+body.single-courses #content {
+  position: relative;
+  z-index: 2;
+}
+
+body.single-courses .tutor-course-details-page p,
+body.single-courses .tutor-course-details-page li,
+body.single-courses .tutor-course-details-page span:not([class*="tutor-icon"]),
+body.single-courses .tutor-course-details-page a,
+body.single-courses .tutor-course-details-page button,
+body.single-courses .tutor-btn {
+  font-family: "Manrope", "Segoe UI", sans-serif;
+}
+
+body.single-courses .tutor-course-details-header {
+  margin-bottom: 1.75rem !important;
+}
+
+body.single-courses .tutor-course-details-title,
+body.single-courses .tutor-course-details-page h1,
+body.single-courses .tutor-course-details-page h2,
+body.single-courses .tutor-course-details-page h3,
+body.single-courses .tutor-course-details-page h4,
+body.single-courses .tutor-course-details-widget-title,
+body.single-courses .tutor-fs-4,
+body.single-courses .tutor-fs-5 {
+  font-family: "Cormorant Garamond", Georgia, serif !important;
+  font-weight: 500 !important;
+  color: #12100e !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+body.single-courses .tutor-course-details-title,
+body.single-courses .tutor-course-details-page h1 {
+  font-size: clamp(2rem, 4.2vw, 3.1rem) !important;
+  line-height: 1.12 !important;
+  max-width: 18ch;
+  margin-top: 0.35rem !important;
+}
+
+body.single-courses .tutor-course-details-top {
+  margin-top: 1rem !important;
+}
+
+body.single-courses .tutor-course-details-actions {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
+body.single-courses .tutor-course-details-actions .tutor-btn {
+  white-space: nowrap;
+}
+
+/*
+ * Layout: Tutor 4.x = .tutor-col-xl-8/4 con width %.
+ * Sin resetear, el % se calcula sobre la celda grid y el sidebar colapsa.
+ */
+body.single-courses .tutor-course-details-page > .tutor-row,
+body.single-courses .tutor-course-details-page > .tutor-row.tutor-gx-xl-5,
+body.single-courses .tutor-course-single-content-wrapper > .tutor-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px) !important;
+  gap: 1.75rem 2.25rem !important;
+  align-items: start !important;
+  --tutor-gutter-x: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+body.single-courses .tutor-course-details-page .tutor-col-xl-8,
+body.single-courses .tutor-course-details-page .tutor-col-xl-4,
+body.single-courses .tutor-course-details-page .tutor-col-lg-8,
+body.single-courses .tutor-course-details-page .tutor-col-lg-4,
+body.single-courses .tutor-course-details-page .tutor-col-md-8,
+body.single-courses .tutor-course-details-page .tutor-col-md-4,
+body.single-courses .tutor-course-details-page .tutor-col-8,
+body.single-courses .tutor-course-details-page .tutor-col-4,
+body.single-courses .tutor-course-single-content-wrapper .tutor-col-xl-8,
+body.single-courses .tutor-course-single-content-wrapper .tutor-col-xl-4,
+body.single-courses .tutor-course-single-content-wrapper .tutor-col-8,
+body.single-courses .tutor-course-single-content-wrapper .tutor-col-4 {
+  width: 100% !important;
+  max-width: none !important;
+  flex: none !important;
+  float: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+body.single-courses .tutor-single-course-sidebar,
+body.single-courses .tutor-course-single-sidebar-wrapper,
+body.single-courses .tutor-sidebar-card {
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+body.single-courses .tutor-single-course-sidebar,
+body.single-courses .tutor-course-single-sidebar-wrapper {
+  position: sticky;
+  top: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+body.single-courses .tutor-single-course-sidebar > * {
+  margin-top: 0 !important;
+}
+
+/* Cards */
+body.single-courses .tutor-card,
+body.single-courses .tutor-course-segment,
+body.single-courses .tutor-accordion-item,
+body.single-courses .tutor-sidebar-card,
+body.single-courses .tutor-course-details-widget {
+  background: #fff !important;
+  border: 1px solid rgba(18, 16, 14, 0.09) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 10px 32px rgba(18, 16, 14, 0.06) !important;
+  overflow: hidden;
+}
+
+body.single-courses .tutor-course-segment,
+body.single-courses .tutor-course-details-widget {
+  padding: 1.45rem 1.5rem !important;
+  margin-bottom: 1.15rem !important;
+}
+
+body.single-courses .tutor-course-details-widget-title {
+  font-size: 1.45rem !important;
+  margin-bottom: 0.9rem !important;
+}
+
+body.single-courses .tutor-sidebar-card .tutor-card-body {
+  padding: 1.35rem 1.4rem 1.15rem !important;
+}
+
+body.single-courses .tutor-sidebar-card .tutor-card-footer {
+  padding: 0.85rem 1.4rem 1.25rem !important;
+  border-top: 1px solid rgba(18, 16, 14, 0.08) !important;
+  background: #fffcf8 !important;
+}
+
+body.single-courses .tutor-course-single-pricing {
+  margin-bottom: 0.15rem;
+}
+
+body.single-courses .tutor-course-single-pricing .tutor-fs-4,
+body.single-courses .tutor-course-single-pricing span {
+  font-family: "Cormorant Garamond", Georgia, serif !important;
+  font-size: 2.15rem !important;
+  font-weight: 500 !important;
+  color: #12100e !important;
+  line-height: 1.1 !important;
+}
+
+body.single-courses .tutor-course-entry-box-login .tutor-btn-block,
+body.single-courses .tutor-enroll-course-button {
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+/* Tabs: solo la pastilla; sin caja cuadrada detrás (.tutor-is-sticky) */
+body.single-courses .tutor-is-sticky,
+body.single-courses .tutor-course-details-tab .tutor-is-sticky {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  position: static !important;
+}
+
+body.single-courses .tutor-nav,
+body.single-courses .tutor-nav-tabs,
+body.single-courses .tutor-is-sticky-on-parent {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  background: rgba(246, 241, 234, 0.95) !important;
+  border: 1px solid rgba(18, 16, 14, 0.08) !important;
+  border-radius: 999px !important;
+  padding: 0.35rem !important;
+  gap: 0.25rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+body.single-courses .tutor-nav-link,
+body.single-courses .tutor-nav .tutor-nav-item a {
+  border-radius: 999px !important;
+  font-family: "Manrope", sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #7a736a !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0.65rem 1rem !important;
+}
+
+body.single-courses .tutor-nav-link.is-active,
+body.single-courses .tutor-nav-item.is-active a,
+body.single-courses .tutor-nav-link:hover {
+  background: #12100e !important;
+  color: #fff !important;
+}
+
+/* Curriculum */
+body.single-courses .tutor-accordion-item-header {
+  background: #fffcf8 !important;
+  border-radius: 14px !important;
+  padding: 1rem 1.15rem !important;
+  color: #12100e !important;
+  font-family: "Manrope", sans-serif !important;
+  font-weight: 600 !important;
+  border-color: rgba(18, 16, 14, 0.08) !important;
+}
+
+body.single-courses .tutor-accordion-item-header.is-active,
+body.single-courses .tutor-accordion-item-header:hover {
+  background: #f6f1ea !important;
+  color: #9a7a3c !important;
+}
+
+body.single-courses .tutor-course-content-list-item a {
+  color: #2a2622 !important;
+  font-family: "Manrope", sans-serif !important;
+}
+
+/* Listas: ancho completo (sin caja interna / columnas aplastadas) */
+body.single-courses .tutor-course-details-widget {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+body.single-courses .tutor-course-details-widget-list,
+body.single-courses .tutor-course-details-widget-col-2 .tutor-course-details-widget-list,
+body.single-courses .tutor-course-benefits-content,
+body.single-courses .tutor-course-requirements-content,
+body.single-courses .tutor-course-target-audience-content,
+body.single-courses .tutor-course-material-includes-wrap ul {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.85rem 1.5rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+  column-count: unset !important;
+  columns: unset !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Sidebar: una columna (380px no aguanta 2 cols legibles) */
+body.single-courses .tutor-col-xl-4 .tutor-course-details-widget-list,
+body.single-courses .tutor-single-course-sidebar .tutor-course-details-widget-list,
+body.single-courses .tutor-single-course-sidebar .tutor-course-material-includes-wrap ul,
+body.single-courses .tutor-single-course-sidebar .tutor-course-requirements-content,
+body.single-courses .tutor-single-course-sidebar .tutor-course-target-audience-content {
+  grid-template-columns: 1fr !important;
+}
+
+body.single-courses .tutor-course-details-widget-list li,
+body.single-courses .tutor-course-details-widget-col-2 .tutor-course-details-widget-list li,
+body.single-courses .tutor-ul > li.tutor-d-flex,
+body.single-courses .tutor-course-benefits-content li,
+body.single-courses .tutor-course-requirements-content li,
+body.single-courses .tutor-course-target-audience-content li,
+body.single-courses .tutor-course-material-includes-wrap li {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.65rem !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  flex: none !important;
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #2a2622 !important;
+  font-family: "Manrope", sans-serif !important;
+  font-size: 0.95rem !important;
+  line-height: 1.55 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body.single-courses .tutor-course-details-widget-list li > span:last-child,
+body.single-courses .tutor-course-details-widget-list li > :not([class*="tutor-icon"]) {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+body.single-courses .tutor-course-details-widget-list [class*="tutor-icon-"],
+body.single-courses .tutor-ul [class*="tutor-icon-"],
+body.single-courses .tutor-icon-bullet-point {
+  flex: 0 0 auto !important;
+  width: 1.1rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin-top: 0.2rem !important;
+  line-height: 1 !important;
+  font-size: 0.95rem !important;
+  color: #c4a35a !important;
+  display: inline-block !important;
+}
+
+/* Certificado: una sola tarjeta, sin caja/marco Tutor */
+body.single-courses #tutor-certificate-showcase {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1.75rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 1.5rem 0 0 !important;
+  padding: 1.5rem 1.6rem !important;
+  background: #fff !important;
+  border: 1px solid rgba(18, 16, 14, 0.09) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 10px 32px rgba(18, 16, 14, 0.06) !important;
+  overflow: visible !important;
+}
+
+body.single-courses #tutor-certificate-showcase .tutor-cs-text,
+body.single-courses #tutor-certificate-showcase .tutor-cs-text > div {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  width: auto !important;
+  max-width: none !important;
+  flex: 1 1 auto !important;
+}
+
+body.single-courses #tutor-certificate-showcase .tutor-cs-text h3 {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+body.single-courses #tutor-certificate-showcase .tutor-cs-wrapper {
+  flex: 0 0 auto !important;
+  width: min(280px, 42%) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Quitar marco/laurel de Tutor que deja el preview minúsculo */
+body.single-courses #tutor-certificate-showcase .tutor-cs-wrapper::before,
+body.single-courses #tutor-certificate-showcase .tutor-cs-wrapper::after {
+  content: none !important;
+  display: none !important;
+}
+
+body.single-courses #tutor-certificate-showcase .tutor-cs-image-wrapper {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  z-index: 1 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+body.single-courses #tutor-certificate-showcase .tutor-cs-image-wrapper img {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(18, 16, 14, 0.12) !important;
+}
+
+@media (max-width: 720px) {
+  body.single-courses .tutor-course-details-widget-list,
+  body.single-courses .tutor-course-details-widget-col-2 .tutor-course-details-widget-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.single-courses #tutor-certificate-showcase {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  body.single-courses #tutor-certificate-showcase .tutor-cs-wrapper {
+    width: 100% !important;
+    max-width: 320px !important;
+  }
+}
+
+/* Buttons */
+body.single-courses .tutor-btn,
+body.single-courses .tutor-btn-primary,
+body.single-courses .tutor-btn-ghost,
+body.post-type-archive-courses .tutor-btn,
+body.tutor-dashboard .tutor-btn-primary {
+  border-radius: 999px !important;
+  font-family: "Manrope", sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  font-size: 0.74rem !important;
+  padding: 0.95rem 1.45rem !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.25s ease, color 0.25s ease !important;
+}
+
+body.single-courses .tutor-btn-primary,
+body.single-courses .tutor-btn.tutor-btn-primary,
+body.post-type-archive-courses .tutor-btn-primary,
+body.tutor-dashboard .tutor-btn-primary {
+  background: linear-gradient(135deg, #d4b56a, #c4a35a 45%, #b08a42) !important;
+  color: #12100e !important;
+}
+
+body.single-courses .tutor-btn-primary:hover,
+body.single-courses .tutor-btn.tutor-btn-primary:hover {
+  background: #e2d0a4 !important;
+  color: #12100e !important;
+  transform: translateY(-2px);
+}
+
+body.single-courses .tutor-btn-outline-primary,
+body.single-courses .tutor-btn-ghost {
+  background: #fff !important;
+  color: #12100e !important;
+  border: 1px solid rgba(18, 16, 14, 0.18) !important;
+}
+
+body.single-courses .tutor-btn-outline-primary:hover,
+body.single-courses .tutor-btn-ghost:hover {
+  background: #12100e !important;
+  color: #fff !important;
+  border-color: #12100e !important;
+}
+
+/* Media: video + featured (fallback stock si placeholder) */
+body.single-courses .tutor-video-player,
+body.single-courses .tutor-video-player iframe,
+body.single-courses .tutor-video-player video,
+body.single-courses .tutor-course-video,
+body.single-courses .tutor-ratio,
+body.single-courses .tutor-ratio-16x9 {
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  background: #12100e !important;
+}
+
+body.single-courses .tutor-course-thumbnail {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  line-height: 0;
+  border-radius: 22px !important;
+  margin: 0 0 1.35rem !important;
+  background:
+    linear-gradient(145deg, rgba(18, 16, 14, 0.12), transparent 45%),
+    #ebe4da url("images/stock/curso-tricologia.jpg") center / cover no-repeat;
+  box-shadow: 0 14px 40px rgba(18, 16, 14, 0.1);
+}
+
+body.single-courses .tutor-course-thumbnail img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  display: block !important;
+  border-radius: 0 !important;
+}
+
+/* Oculta el SVG feo de Tutor; se ve el fondo stock */
+body.single-courses .tutor-course-thumbnail img[src*="placeholder"],
+body.single-courses .tutor-course-thumbnail img[src*="tutor/assets/images/placeholder"] {
+  opacity: 0 !important;
+}
+
+body.single-courses .tutor-sidebar-card > .tutor-card-image {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  line-height: 0;
+  background: #f6f1ea url("images/stock/curso-tricologia.jpg") center top / cover no-repeat;
+}
+
+body.single-courses .tutor-sidebar-card > .tutor-card-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  display: block !important;
+}
+
+body.single-courses .tutor-sidebar-card > .tutor-card-image img[src*="placeholder"] {
+  opacity: 0 !important;
+}
+
+body.single-courses .tutor-instructor-info,
+body.single-courses .tutor-avatar img {
+  border-radius: 14px !important;
+}
+
+body.single-courses .tutor-ratings .tutor-ratings-stars span,
+body.single-courses .tutor-icon-star-bold {
+  color: #c4a35a !important;
+}
+
+body.single-courses .tutor-progress-bar .tutor-progress-value {
+  background: #c4a35a !important;
+}
+
+body.single-courses .tutor-meta,
+body.single-courses .tutor-course-details-info,
+body.single-courses .tutor-color-secondary,
+body.single-courses .tutor-color-muted {
+  font-family: "Manrope", sans-serif !important;
+  color: #7a736a !important;
+}
+
+body.single-courses .tutor-tagcloud a,
+body.single-courses .tutor-course-tags a,
+body.single-courses .tutor-course-categories a {
+  border-radius: 999px !important;
+  background: rgba(196, 163, 90, 0.14) !important;
+  color: #9a7a3c !important;
+  border: 0 !important;
+  padding: 0.35rem 0.75rem !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+body.single-courses .tutor-row::before,
+body.single-courses .tutor-row::after {
+  display: none !important;
+}
+
+body.single-courses .tutor-container,
+body.single-courses .tutor-container-fluid {
+  max-width: 1180px !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Archive */
+body.post-type-archive-courses .tutor-card,
+body.tax-course-category .tutor-card {
+  border-radius: 22px !important;
+  border: 1px solid rgba(18, 16, 14, 0.08) !important;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(18, 16, 14, 0.05);
+  background: #fff !important;
+}
+
+body.post-type-archive-courses .tutor-course-name a,
+body.tax-course-category .tutor-course-name a {
+  font-family: "Cormorant Garamond", Georgia, serif !important;
+  font-weight: 500 !important;
+  color: #12100e !important;
+}
+
+body.tutor-screen-course-builder .tutor-lesson-content,
+.tutor-lesson-content {
+  font-family: "Manrope", sans-serif;
+}
+
+@media (max-width: 960px) {
+  body.single-courses .tutor-course-details-page {
+    padding-top: 4.5rem !important;
+  }
+
+  body.single-courses .tutor-course-details-page > .tutor-row,
+  body.single-courses .tutor-course-single-content-wrapper > .tutor-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.single-courses .tutor-single-course-sidebar,
+  body.single-courses .tutor-course-single-sidebar-wrapper {
+    position: static;
+    order: -1;
+  }
+
+  body.single-courses .tutor-course-details-title,
+  body.single-courses .tutor-course-details-page h1 {
+    max-width: none;
+  }
+
+  body.single-courses .site-main,
+  body.single-courses #content,
+  body.single-courses .tutor-wrap {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
 }

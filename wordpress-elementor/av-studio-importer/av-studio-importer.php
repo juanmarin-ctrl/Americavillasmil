@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AV Studio Maestro
  * Description: Instala el sitio completo de AV Studio Academy con un solo clic (fotos, páginas Elementor, menús, inicio, CSS). Tras instalar, despliega un runtime en mu-plugins para que puedas borrar este plugin sin perder estilos.
- * Version: 2.7.2
+ * Version: 2.7.8
  * Author: TEDUCAS / AV Studio Academy
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-define('AVSI_VERSION', '2.7.2');
+define('AVSI_VERSION', '2.7.8');
 define('AVSI_PATH', plugin_dir_path(__FILE__));
 define('AVSI_URL', plugin_dir_url(__FILE__));
 
@@ -175,7 +175,7 @@ function avsi_render_admin_page() {
 
 		<div class="card" style="max-width:760px;padding:1.5rem;border:1px solid #c4a35a;box-shadow:0 10px 30px rgba(0,0,0,.06);">
 			<h2 style="margin-top:0;">Instalar / reparar</h2>
-			<p>Sube el ZIP <strong>2.7.2</strong>, actívalo y pulsa el botón. Además de páginas y fotos, copia estilos a un <strong>MU-plugin</strong> para que luego puedas borrar este instalador. Al reparar <strong>actualiza las fotos</strong> y los datos de empresa.</p>
+			<p>Sube el ZIP <strong>2.7.8</strong>, actívalo y pulsa el botón. Incluye skin AV para <strong>Tutor LMS</strong> (curso individual), runtime MU-plugin, fotos y datos de empresa.</p>
 			<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" onsubmit="this.querySelector('input[type=submit]').disabled=true;this.querySelector('input[type=submit]').value='Instalando… espera';">
 				<input type="hidden" name="action" value="avsi_run_import">
 				<?php wp_nonce_field('avsi_run_import'); ?>

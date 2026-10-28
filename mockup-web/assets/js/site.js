@@ -21,7 +21,7 @@
   }
 
   /* ---------- Salon entrance veil ---------- */
-  if (!document.querySelector(".salon-veil") && !reduceMotion) {
+  if (!document.body.classList.contains("av-no-veil") && !document.querySelector(".salon-veil") && !reduceMotion) {
     const veil = document.createElement("div");
     veil.className = "salon-veil";
     veil.setAttribute("aria-hidden", "true");
@@ -111,6 +111,7 @@
 
   function isActive(href) {
     if (href === "index.html") return isHome;
+    if (href === "cursos.html" && path.indexOf("curso-") === 0) return true;
     return path === href;
   }
 

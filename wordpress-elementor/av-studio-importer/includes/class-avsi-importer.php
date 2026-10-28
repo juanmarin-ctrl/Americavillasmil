@@ -80,14 +80,20 @@ class AVSI_Importer {
 			array(AVSI_PATH . 'templates/av-single-post.php', $dest . '/templates/av-single-post.php'),
 		);
 
-		// Monograma fallback (opcional; el logo suele estar en Medios).
-		$brand = AVSI_PATH . 'assets/images/brand/monograma-av-oro.png';
-		if (is_readable($brand)) {
-			$copies[] = array($brand, $dest . '/assets/images/brand/monograma-av-oro.png');
-		}
-		$hero = AVSI_PATH . 'assets/images/stock/blog-porosidad.jpg';
-		if (is_readable($hero)) {
-			$copies[] = array($hero, $dest . '/assets/images/stock/blog-porosidad.jpg');
+		// Brand + stock (incluye fallback de portada Tutor).
+		$stock_files = array(
+			'assets/images/brand/monograma-av-oro.png',
+			'assets/images/stock/blog-porosidad.jpg',
+			'assets/images/stock/curso-tricologia.jpg',
+			'assets/images/stock/curso-ciencia-color.jpg',
+			'assets/images/stock/curso-correccion-blonde.jpg',
+			'assets/images/stock/metodologia-retrato.jpg',
+		);
+		foreach ($stock_files as $rel) {
+			$from = AVSI_PATH . $rel;
+			if (is_readable($from)) {
+				$copies[] = array($from, $dest . '/' . $rel);
+			}
 		}
 
 		$ok = 0;
@@ -134,9 +140,51 @@ class AVSI_Importer {
 			'time' => time(),
 		), false);
 
+		$this->ensure_course_thumbnails();
+
 		$this->log('RUNTIME OK: ' . $ok . ' archivos → ' . $dest);
 		$this->log('RUNTIME loader: ' . $loader_dest);
 		return $ok > 0 && is_readable($loader_dest) && is_readable($dest . '/includes/avsi-frontend.php');
+	}
+
+	/**
+	 * Cursos Tutor sin imagen destacada → asigna stock AV (tricología por defecto).
+	 */
+	public function ensure_course_thumbnails() {
+		if (!post_type_exists('courses')) {
+			$this->log('THUMBS: post type courses no existe');
+			return 0;
+		}
+		$src = AVSI_PATH . 'assets/images/stock/curso-tricologia.jpg';
+		if (!is_readable($src)) {
+			$this->log('THUMBS: falta curso-tricologia.jpg');
+			return 0;
+		}
+		$this->bootstrap_wp_files();
+		$attach_id = $this->find_attachment_by_filename('curso-tricologia.jpg');
+		if (!$attach_id) {
+			$attach_id = $this->sideload_local_file($src, 'curso-tricologia.jpg');
+		}
+		if (!$attach_id || is_wp_error($attach_id)) {
+			$this->log('THUMBS ERROR: no se pudo crear/encontrar attachment');
+			return 0;
+		}
+		$courses = get_posts(array(
+			'post_type' => 'courses',
+			'post_status' => array('publish', 'draft', 'pending', 'private'),
+			'posts_per_page' => 100,
+			'fields' => 'ids',
+			'no_found_rows' => true,
+		));
+		$n = 0;
+		foreach ($courses as $cid) {
+			if (!has_post_thumbnail((int) $cid)) {
+				set_post_thumbnail((int) $cid, (int) $attach_id);
+				$n++;
+			}
+		}
+		$this->log('THUMBS: ' . $n . ' cursos sin imagen → attachment #' . (int) $attach_id);
+		return $n;
 	}
 
 	public function run() {
