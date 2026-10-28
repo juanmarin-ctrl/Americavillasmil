@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AV Studio Maestro
  * Description: Instala el sitio completo de AV Studio Academy con un solo clic (fotos, páginas Elementor, menús, inicio, CSS). Incluye log de instalación.
- * Version: 2.5.0
+ * Version: 2.6.8
  * Author: TEDUCAS / AV Studio Academy
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-define('AVSI_VERSION', '2.5.0');
+define('AVSI_VERSION', '2.6.8');
 define('AVSI_PATH', plugin_dir_path(__FILE__));
 define('AVSI_URL', plugin_dir_url(__FILE__));
 
@@ -26,6 +26,9 @@ add_filter('body_class', function ($classes) {
 	$classes[] = 'av-studio-site';
 	if (avsi_pro_chrome_active()) {
 		$classes[] = 'av-pro-chrome';
+	}
+	if (avsi_is_custom_blog_view()) {
+		$classes[] = 'av-blog-native';
 	}
 	return $classes;
 });
@@ -45,11 +48,102 @@ function avsi_pro_chrome_active() {
 }
 
 /**
- * Hello Elementor: cuando Pro ya pinta nuestro header/footer, el tema no debe pintar el suyo (barra beige).
+ * Vista blog / single post con plantilla AV.
+ */
+function avsi_is_custom_blog_view() {
+	return (is_home() && !is_front_page()) || is_singular('post');
+}
+
+/**
+ * ID de plantilla Elementor Library por título.
+ */
+function avsi_library_id_by_title($title) {
+	$all = get_posts(array(
+		'post_type' => 'elementor_library',
+		'post_status' => 'publish',
+		'numberposts' => 80,
+	));
+	foreach ($all as $p) {
+		if ($p->post_title === $title) {
+			return (int) $p->ID;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Imagen hero del blog (medios importados o fallback del plugin).
+ */
+function avsi_blog_hero_image_url() {
+	$fallback = AVSI_URL . 'assets/images/stock/blog-porosidad.jpg';
+	$q = new WP_Query(array(
+		'post_type' => 'attachment',
+		'post_status' => 'inherit',
+		'posts_per_page' => 1,
+		'meta_query' => array(
+			array(
+				'key' => '_wp_attached_file',
+				'value' => 'blog-porosidad',
+				'compare' => 'LIKE',
+			),
+		),
+	));
+	if (!empty($q->posts[0])) {
+		$url = wp_get_attachment_image_url((int) $q->posts[0]->ID, 'full');
+		if ($url) {
+			return $url;
+		}
+	}
+	return $fallback;
+}
+
+/**
+ * En Free: pinta header/footer Elementor en vistas de blog (Pro ya lo hace vía Theme Builder).
+ */
+function avsi_print_free_chrome($which) {
+	if (avsi_pro_chrome_active() || !class_exists('\\Elementor\\Plugin')) {
+		return;
+	}
+	$title = $which === 'footer' ? 'AV Footer' : 'AV Header';
+	$id = avsi_library_id_by_title($title);
+	if (!$id) {
+		return;
+	}
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo \Elementor\Plugin::instance()->frontend->get_builder_content_for_display($id);
+}
+
+/**
+ * Hello Elementor: no pintar su chrome si Pro o si nosotros lo sustituimos en el blog.
  */
 add_filter('hello_elementor_header_footer', function ($show) {
-	return avsi_pro_chrome_active() ? false : $show;
+	if (avsi_pro_chrome_active()) {
+		return false;
+	}
+	if (avsi_is_custom_blog_view() && (avsi_library_id_by_title('AV Header') || avsi_library_id_by_title('AV Footer'))) {
+		return false;
+	}
+	return $show;
 });
+
+/**
+ * Sustituye el listado WP por la plantilla AV del mockup.
+ */
+add_filter('template_include', function ($template) {
+	if (is_home() && !is_front_page()) {
+		$custom = AVSI_PATH . 'templates/av-blog-archive.php';
+		if (is_readable($custom)) {
+			return $custom;
+		}
+	}
+	if (is_singular('post')) {
+		$custom = AVSI_PATH . 'templates/av-single-post.php';
+		if (is_readable($custom)) {
+			return $custom;
+		}
+	}
+	return $template;
+}, 99);
 
 add_action('wp_enqueue_scripts', function () {
 	wp_enqueue_style(
@@ -180,7 +274,7 @@ function avsi_render_admin_page() {
 
 		<div class="card" style="max-width:760px;padding:1.5rem;border:1px solid #c4a35a;box-shadow:0 10px 30px rgba(0,0,0,.06);">
 			<h2 style="margin-top:0;">Instalar / reparar</h2>
-			<p>Sube el ZIP <strong>2.4.0</strong>, actívalo y pulsa el botón. El log dirá exactamente qué se guardó en cada página (plantillas completas, header/footer Pro activados, tarjetas en 3 columnas).</p>
+			<p>Sube el ZIP <strong>2.6.8</strong>, actívalo y pulsa el botón. El log dirá exactamente qué se guardó en cada página (plantillas completas, header/footer Pro activados, tarjetas en 3 columnas). El blog usa la plantilla AV (hero + tarjetas) al activar el plugin.</p>
 			<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" onsubmit="this.querySelector('input[type=submit]').disabled=true;this.querySelector('input[type=submit]').value='Instalando… espera';">
 				<input type="hidden" name="action" value="avsi_run_import">
 				<?php wp_nonce_field('avsi_run_import'); ?>

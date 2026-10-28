@@ -1,11 +1,22 @@
-/* AV Studio Academy — salon atmosphere + scroll motion (v2.5.0) */
+/* AV Studio Academy — salon atmosphere + scroll motion (v2.6.6) */
 (function () {
   if (!document.body) return;
   document.body.classList.add("av-studio-site");
 
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var cfg = window.avsiFrontend || {};
-  var monoUrl = cfg.monogramUrl || "";
+
+  /* Limpiar restos de velo de versiones anteriores */
+  try {
+    sessionStorage.removeItem("av_veil_nav");
+    sessionStorage.removeItem("av_veil_done");
+  } catch (e) {}
+  document.documentElement.classList.remove("av-veil-pending");
+  document.body.classList.remove("av-is-entering");
+  document.body.classList.add("av-is-entered");
+  document.querySelectorAll(".av-salon-veil, #avsi-veil-boot, #avsi-salon-veil").forEach(function (n) {
+    n.remove();
+  });
 
   /* ---------- Background world ---------- */
   if (!document.querySelector(".av-bg-world")) {
@@ -30,35 +41,6 @@
     document.body.appendChild(bar);
   }
   var progress = document.querySelector(".av-scroll-progress");
-
-  /* ---------- Entrance veil ---------- */
-  if (!reduce && !sessionStorage.getItem("av_veil_done")) {
-    document.body.classList.add("av-is-entering");
-    var veil = document.createElement("div");
-    veil.className = "av-salon-veil";
-    veil.setAttribute("aria-hidden", "true");
-    var monoHtml = monoUrl
-      ? '<img src="' + monoUrl.replace(/"/g, "") + '" alt="">'
-      : "";
-    veil.innerHTML =
-      '<div class="av-salon-veil__panel av-salon-veil__panel--left"></div>' +
-      '<div class="av-salon-veil__panel av-salon-veil__panel--right"></div>' +
-      '<div class="av-salon-veil__center">' +
-      monoHtml +
-      "<p>AV Studio Academy</p><span>Bienvenida</span></div>";
-    document.body.appendChild(veil);
-    requestAnimationFrame(function () {
-      veil.classList.add("is-open");
-      document.body.classList.add("av-is-entered");
-    });
-    setTimeout(function () {
-      veil.remove();
-      document.body.classList.remove("av-is-entering");
-      sessionStorage.setItem("av_veil_done", "1");
-    }, 2200);
-  } else {
-    document.body.classList.add("av-is-entered");
-  }
 
   /* ---------- Soft light follow ---------- */
   if (!reduce && window.matchMedia("(pointer:fine)").matches) {
@@ -198,21 +180,39 @@
     mq.appendChild(track);
   });
 
-  /* ---------- Section decorative scenes ---------- */
-  document.querySelectorAll(".av-section--academy, .av-section--mist").forEach(function (sec, idx) {
-    if (sec.querySelector(".av-section-scene") || reduce) return;
-    if (idx > 2) return;
+  /* ---------- Section decorative scenes (letras AV / Studio) ---------- */
+  var sceneTargets = document.querySelectorAll(
+    ".av-section--academy, .av-section--mist, .av-section.av-section--mist, .av-hero + .av-section"
+  );
+  if (!sceneTargets.length) {
+    sceneTargets = document.querySelectorAll(".av-section");
+  }
+  Array.prototype.slice.call(sceneTargets).forEach(function (sec, idx) {
+    if (sec.querySelector(".av-section-scene")) return;
+    if (idx > 4) return;
     var scene = document.createElement("div");
     scene.className = "av-section-scene";
     scene.setAttribute("aria-hidden", "true");
+    var mono =
+      idx === 0
+        ? '<div class="av-section-scene__mono">AV</div><div class="av-section-scene__grid"></div>'
+        : idx === 1
+          ? '<div class="av-section-scene__mono av-section-scene__mono--studio">Studio</div>'
+          : idx === 2
+            ? '<div class="av-section-scene__mono">AV</div>'
+            : '<div class="av-section-scene__mono av-section-scene__mono--studio">Academy</div>';
+    var arcClass = idx % 2 === 0 ? "av-section-scene__arc--tl" : "av-section-scene__arc--tr";
     scene.innerHTML =
-      '<div class="av-section-scene__arc av-section-scene__arc--tl"></div>' +
+      '<div class="av-section-scene__arc ' +
+      arcClass +
+      '"></div>' +
       '<div class="av-section-scene__arc av-section-scene__arc--br"></div>' +
-      (idx === 0 ? '<div class="av-section-scene__mono">AV</div>' : "") +
+      mono +
       '<span class="av-section-scene__petal" style="top:22%;left:18%;"></span>' +
       '<span class="av-section-scene__petal" style="top:55%;left:8%;animation-delay:1s;"></span>' +
       '<span class="av-section-scene__petal" style="top:30%;right:22%;animation-delay:2s;"></span>';
-    sec.style.position = sec.style.position || "relative";
+    var pos = window.getComputedStyle(sec).position;
+    if (pos === "static" || !pos) sec.style.position = "relative";
     sec.prepend(scene);
   });
 

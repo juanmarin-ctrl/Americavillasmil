@@ -457,28 +457,35 @@ class AVSI_Importer {
 				'title' => 'Cómo leer la porosidad antes de formular',
 				'content' => 'Una fibra porosa no responde igual a la misma fórmula. Aprende señales visuales y táctiles para ajustar el protocolo.',
 				'image' => 'blog-porosidad.jpg',
+				'category' => 'Tricología',
 			),
 			array(
 				'title' => 'Fondos de aclaración sin miedo',
 				'content' => 'Del amarillo al naranja: cómo elegir el reflejo corrector sin sobrecargar de pigmento.',
 				'image' => 'blog-fondos.jpg',
+				'category' => 'Color',
 			),
 			array(
 				'title' => 'Cuándo tratar y cuándo derivar',
 				'content' => 'Límites del tricólogo cosmético frente a alteraciones que requieren valoración médica.',
 				'image' => 'fibra-brillo.jpg',
+				'category' => 'Ética profesional',
 			),
 		);
 		$count = 0;
 		foreach ($posts as $p) {
-			$exists = false;
+			$existing_id = 0;
 			foreach (get_posts(array('post_type' => 'post', 'post_status' => 'any', 'numberposts' => 50)) as $existing) {
 				if ($existing->post_title === $p['title']) {
-					$exists = true;
+					$existing_id = (int) $existing->ID;
 					break;
 				}
 			}
-			if ($exists) {
+			if ($existing_id) {
+				$this->assign_blog_category($existing_id, $p['category']);
+				if (!has_post_thumbnail($existing_id) && !empty($this->media_map[$p['image']])) {
+					set_post_thumbnail($existing_id, $this->media_map[$p['image']]);
+				}
 				continue;
 			}
 			$id = wp_insert_post(array(
@@ -487,13 +494,33 @@ class AVSI_Importer {
 				'post_status' => 'publish',
 				'post_type' => 'post',
 			));
-			if ($id && !is_wp_error($id) && !empty($this->media_map[$p['image']])) {
-				set_post_thumbnail($id, $this->media_map[$p['image']]);
+			if ($id && !is_wp_error($id)) {
+				if (!empty($this->media_map[$p['image']])) {
+					set_post_thumbnail($id, $this->media_map[$p['image']]);
+				}
+				$this->assign_blog_category((int) $id, $p['category']);
+				$count++;
 			}
-			$count++;
 		}
 		$this->log('Posts blog nuevos: ' . $count);
 		return $count;
+	}
+
+	private function assign_blog_category($post_id, $name) {
+		$post_id = (int) $post_id;
+		$name = sanitize_text_field($name);
+		if (!$post_id || $name === '') {
+			return;
+		}
+		$term = term_exists($name, 'category');
+		if (!$term) {
+			$term = wp_insert_term($name, 'category');
+		}
+		if (is_wp_error($term)) {
+			return;
+		}
+		$term_id = (int) (is_array($term) ? $term['term_id'] : $term);
+		wp_set_post_categories($post_id, array($term_id), false);
 	}
 
 	private function create_menus() {

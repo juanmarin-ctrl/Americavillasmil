@@ -3,7 +3,7 @@ Contributors: teducas
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.5.0
+Stable tag: 2.6.8
 
 Importa fotos + plantillas Elementor de AV Studio Academy.
 
